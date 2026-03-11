@@ -57,6 +57,41 @@
             font-size: 0.9rem;
             font-weight: bold;
         }
+        .live-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .card-stat {
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            margin: 0 5px;
+        }
+        .yellow-card {
+            width: 12px;
+            height: 16px;
+            background-color: #ffc107;
+            display: inline-block;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+        .red-card {
+            width: 12px;
+            height: 16px;
+            background-color: #dc3545;
+            display: inline-block;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+        .live-badge {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -113,12 +148,23 @@
                 if (data && data.response) {
                     matches = data.response.slice(0, 15).map((match, index) => {
                         const [home, away] = match.title.split(' - ');
+                        const matchDate = new Date(match.date);
+                        const isLive = Math.random() > 0.7; // Simulate some matches as live
+
                         return {
                             id: index,
                             home: home || "Home Team",
                             away: away || "Away Team",
                             competition: match.competition,
-                            date: new Date(match.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            date: matchDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                            isLive: isLive,
+                            score: isLive ? { home: Math.floor(Math.random() * 3), away: Math.floor(Math.random() * 2) } : { home: 0, away: 0 },
+                            cards: isLive ? {
+                                homeYellow: Math.floor(Math.random() * 4),
+                                homeRed: Math.random() > 0.9 ? 1 : 0,
+                                awayYellow: Math.floor(Math.random() * 4),
+                                awayRed: Math.random() > 0.9 ? 1 : 0
+                            } : { homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
                             predictions: generatePredictions()
                         };
                     });
@@ -144,12 +190,21 @@
 
             return Array.from({length: 10}, (_, i) => {
                 const pair = teams[Math.floor(Math.random() * teams.length)];
+                const isLive = Math.random() > 0.5;
                 return {
                     id: i,
                     home: pair[0],
                     away: pair[1],
                     competition: leagues[Math.floor(Math.random() * leagues.length)],
                     date: "Today " + (12 + Math.floor(Math.random() * 10)) + ":00",
+                    isLive: isLive,
+                    score: isLive ? { home: Math.floor(Math.random() * 3), away: Math.floor(Math.random() * 2) } : { home: 0, away: 0 },
+                    cards: isLive ? {
+                        homeYellow: Math.floor(Math.random() * 4),
+                        homeRed: Math.random() > 0.9 ? 1 : 0,
+                        awayYellow: Math.floor(Math.random() * 4),
+                        awayRed: Math.random() > 0.9 ? 1 : 0
+                    } : { homeYellow: 0, homeRed: 0, awayYellow: 0, awayRed: 0 },
                     predictions: generatePredictions()
                 };
             });
@@ -183,23 +238,34 @@
                 const winnerText = pred.predictedWinner === "Home" ? match.home : (pred.predictedWinner === "Away" ? match.away : "Draw");
 
                 card.innerHTML = `
-                    <div class="card match-card">
+                    <div class="card match-card ${match.isLive ? 'border-danger' : ''}">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge bg-secondary">${match.competition}</span>
-                                <span class="small text-muted"><i class="far fa-clock"></i> ${match.date}</span>
+                                <div class="d-flex align-items-center">
+                                    ${match.isLive ? '<span class="badge bg-danger live-badge me-2"><i class="fas fa-broadcast-tower me-1"></i> LIVE</span>' : ''}
+                                    <span class="small text-muted"><i class="far fa-clock"></i> ${match.date}</span>
+                                </div>
                             </div>
                             <div class="row align-items-center text-center my-3">
                                 <div class="col-4">
                                     <h5 class="mb-0 ${pred.predictedWinner === 'Home' ? 'text-success fw-bold' : ''}">${match.home}</h5>
+                                    <div class="mt-2">
+                                        <div class="card-stat"><span class="yellow-card"></span>${match.cards.homeYellow}</div>
+                                        <div class="card-stat"><span class="red-card"></span>${match.cards.homeRed}</div>
+                                    </div>
                                     <div class="mt-2"><span class="badge bg-light text-dark">Odds: ${pred.homeOdds}</span></div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="small text-muted mb-1">vs</div>
+                                    ${match.isLive ? `<div class="live-score">${match.score.home} - ${match.score.away}</div>` : '<div class="small text-muted mb-1">vs</div>'}
                                     <div class="mt-2"><span class="badge bg-light text-dark">Draw: ${pred.drawOdds}</span></div>
                                 </div>
                                 <div class="col-4">
                                     <h5 class="mb-0 ${pred.predictedWinner === 'Away' ? 'text-success fw-bold' : ''}">${match.away}</h5>
+                                    <div class="mt-2">
+                                        <div class="card-stat"><span class="yellow-card"></span>${match.cards.awayYellow}</div>
+                                        <div class="card-stat"><span class="red-card"></span>${match.cards.awayRed}</div>
+                                    </div>
                                     <div class="mt-2"><span class="badge bg-light text-dark">Odds: ${pred.awayOdds}</span></div>
                                 </div>
                             </div>
@@ -234,6 +300,24 @@
         }
 
         refreshBtn.addEventListener('click', fetchMatches);
+
+        // Live Simulation: Update scores/cards every 30 seconds
+        setInterval(() => {
+            matches.forEach(match => {
+                if (match.isLive) {
+                    // Randomly increase score (low probability)
+                    if (Math.random() > 0.95) match.score.home++;
+                    if (Math.random() > 0.95) match.score.away++;
+
+                    // Randomly increase cards
+                    if (Math.random() > 0.9) match.cards.homeYellow++;
+                    if (Math.random() > 0.9) match.cards.awayYellow++;
+                    if (Math.random() > 0.99) match.cards.homeRed++;
+                    if (Math.random() > 0.99) match.cards.awayRed++;
+                }
+            });
+            renderMatches();
+        }, 30000);
 
         // Initial Load
         fetchMatches();
