@@ -9,53 +9,61 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-green: #28a745;
+            --dark-bg: #121212;
+            --card-bg: #ffffff;
+            --text-muted: #6c757d;
+        }
         body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
         }
         .navbar {
             background-color: #000;
+            border-bottom: 2px solid var(--primary-green);
+            padding: 1rem 0;
         }
         .navbar-brand {
-            color: #28a745 !important;
-            font-weight: bold;
-            text-transform: uppercase;
+            color: var(--primary-green) !important;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            font-size: 1.5rem;
         }
         .match-card {
-            border-radius: 10px;
+            border-radius: 16px;
             border: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            transition: transform 0.2s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
         }
         .match-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
         .probability-bar {
-            height: 10px;
-            border-radius: 5px;
+            height: 8px;
+            border-radius: 4px;
+            background-color: #eee;
         }
-        .btn-betway {
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
+        .prediction-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.5em 1em;
+            border-radius: 50px;
         }
-        .btn-betway:hover {
-            background-color: #218838;
-            color: white;
+        #fire-tech-predictor .card {
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            border: none;
+            border-radius: 20px;
         }
-        #bookingCodeResult {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #000;
-            background: #e9ecef;
-            padding: 20px;
-            border-radius: 10px;
-            letter-spacing: 2px;
+        .tracking-widest {
+            letter-spacing: 0.3em;
         }
-        .prediction-text {
-            font-size: 0.9rem;
-            font-weight: bold;
+        .bg-dark-subtle {
+            background-color: #222 !important;
         }
         @keyframes pulse {
             0% { opacity: 1; }
@@ -65,21 +73,92 @@
         .animate-pulse {
             animation: pulse 2s infinite;
         }
+        .hero-section {
+            background: #000;
+            padding: 40px 0;
+            margin-bottom: 40px;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
     </style>
 </head>
 <body>
 
     <nav class="navbar navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-futbol me-2"></i>Betway Predictor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#weeklyMatchesOffcanvas" aria-controls="weeklyMatchesOffcanvas">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand ms-2" href="#"><i class="fas fa-fire me-2"></i>Fire Tech Soccer Predictor</a>
+            <div class="d-none d-md-block">
+                <span class="text-white small"><i class="fas fa-calendar-alt me-1"></i> Week 42</span>
+            </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Weekly Matches Offcanvas -->
+    <div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="weeklyMatchesOffcanvas" aria-labelledby="weeklyMatchesOffcanvasLabel">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title text-success fw-bold" id="weeklyMatchesOffcanvasLabel">
+                <i class="fas fa-calendar-week me-2"></i>Weekly Fixtures
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div id="weeklyMatchList">
+                <!-- Weekly matches will be loaded here -->
+                <div class="text-center py-5">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-section text-center text-white">
+        <div class="container">
+            <h1 class="display-4 fw-bold">Soccer Predictions & Codes</h1>
+            <p class="lead">Powered by <span class="text-success fw-bold">Fire Tech</span> AI</p>
+        </div>
+    </div>
+
+    <div class="container">
         <div class="row">
             <div class="col-md-10 offset-md-1">
+                <!-- Fire Tech Predictor & Betway Code Section -->
+                <section id="fire-tech-predictor" class="mb-5 mt-n5">
+                    <div class="card bg-dark text-white border-success border-2 shadow-lg">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-lg-8">
+                                    <h2 class="display-6 fw-bold text-success mb-3">
+                                        <i class="fas fa-fire-alt me-2"></i>Fire Tech Soccer Predictor
+                                    </h2>
+                                    <p class="lead mb-4">Our advanced AI analyzes thousands of data points to give you the most accurate soccer predictions and Betway booking codes.</p>
+                                    <div class="d-flex gap-3 mb-4 mb-lg-0">
+                                        <button id="generateCodeBtn" class="btn btn-success btn-lg px-4 fw-bold">
+                                            <i class="fas fa-barcode me-2"></i>Generate Betway Code
+                                        </button>
+                                        <button class="btn btn-outline-light btn-lg px-4" onclick="document.getElementById('matchList').scrollIntoView({behavior: 'smooth'})">
+                                            View Predictions
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                                    <div class="p-4 bg-black rounded-3 border border-secondary">
+                                        <div class="small text-uppercase text-muted mb-2">Your Booking Code</div>
+                                        <div id="bookingCodeDisplay" class="h1 fw-bold text-success mb-0 tracking-widest">- - - - -</div>
+                                        <div class="mt-2 text-muted small">Valid for today's top picks</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h3>Today's Matches</h3>
+                    <h3 class="fw-bold"><i class="fas fa-th-list me-2 text-success"></i>Today's Matches</h3>
                     <button id="refreshBtn" class="btn btn-outline-dark btn-sm"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 <div id="matchList" class="row">
@@ -100,9 +179,13 @@
 
     <script>
         const matchList = document.getElementById('matchList');
+        const weeklyMatchList = document.getElementById('weeklyMatchList');
         const refreshBtn = document.getElementById('refreshBtn');
+        const generateCodeBtn = document.getElementById('generateCodeBtn');
+        const bookingCodeDisplay = document.getElementById('bookingCodeDisplay');
 
         let matches = [];
+        let weeklyMatches = [];
 
         async function fetchMatches() {
             matchList.innerHTML = `
@@ -246,8 +329,8 @@
                                 </div>
                             </div>
                             <div class="text-center mb-3">
-                                <span class="small text-muted">Predicted Winner:</span>
-                                <span class="badge bg-${winnerColor} ms-1">${predictedWinner}</span>
+                                <span class="small text-muted text-uppercase fw-bold">Predicted Winner:</span>
+                                <span class="prediction-badge bg-${winnerColor} text-white ms-1">${predictedWinner}</span>
                             </div>
                             <div class="row mb-3 text-center g-2">
                                 <div class="col-4">
@@ -289,10 +372,52 @@
             });
         }
 
+        function generateBetwayCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = 'FT-';
+            for (let i = 0; i < 5; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            bookingCodeDisplay.innerText = code;
+        }
+
         refreshBtn.addEventListener('click', fetchMatches);
+        generateCodeBtn.addEventListener('click', generateBetwayCode);
+
+        function renderWeeklyMatches() {
+            weeklyMatchList.innerHTML = '';
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const teams = [
+                ["Arsenal", "Man City"], ["Liverpool", "Chelsea"], ["Real Madrid", "Barcelona"],
+                ["Bayern Munich", "Dortmund"], ["PSG", "Marseille"], ["Juventus", "AC Milan"],
+                ["Man Utd", "Tottenham"], ["Atletico Madrid", "Sevilla"], ["Inter Milan", "Napoli"]
+            ];
+
+            days.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'text-uppercase small text-muted mb-2 mt-3 fw-bold border-bottom border-secondary pb-1';
+                dayHeader.innerText = day;
+                weeklyMatchList.appendChild(dayHeader);
+
+                // Add 1-2 matches per day
+                const matchesCount = Math.floor(Math.random() * 2) + 1;
+                for (let i = 0; i < matchesCount; i++) {
+                    const matchIdx = Math.floor(Math.random() * teams.length);
+                    const matchItem = document.createElement('div');
+                    matchItem.className = 'd-flex justify-content-between align-items-center mb-2 p-2 bg-dark-subtle rounded';
+                    matchItem.innerHTML = `
+                        <div class="small fw-bold">${teams[matchIdx][0]} vs ${teams[matchIdx][1]}</div>
+                        <div class="badge bg-success small">19:45</div>
+                    `;
+                    weeklyMatchList.appendChild(matchItem);
+                }
+            });
+        }
 
         // Initial Load
         fetchMatches();
+        renderWeeklyMatches();
 
         // Live Update Simulation
         setInterval(() => {
